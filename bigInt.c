@@ -24,13 +24,16 @@ BigInt_t* create() {
 BigInt_t* define(char* digits) {
     BigInt_t* bigInt = create();
 
+    if (digits[0] == '-') bigInt->digits[0] = '-';
+    else bigInt->digits[0] = '+';
+
     int len = getLength(digits);
     bigInt->len = len;
-    int idx = 0;
+    int idx = 1;
 
     BigInt_t* tmp = bigInt;
     
-    for (int i = 0; i < len; i++) {
+    for (int i = 1; i < len; i++) {
         if (idx == DIGIT_SIZE) {
             tmp->next = create();
             tmp = tmp->next;
@@ -44,13 +47,41 @@ BigInt_t* define(char* digits) {
     return bigInt;
 }
 
+int equal(BigInt_t* bigIntThis, BigInt_t* bigIntThat) {
+    if (!bigIntThis || !bigIntThat) return BIGINT_ERROR;
+
+    int lenThis = bigIntThis->len;
+    int lenThat = bigIntThat->len;
+    int idx = 1;
+
+    BigInt_t* tmpThis = bigIntThis;
+    BigInt_t* tmpThat = bigIntThat;
+
+    if (lenThis != lenThat) return 0;
+
+    for (int i = 1; i < lenThis; i++) {
+        if (idx == DIGIT_SIZE) {
+            idx = 0;
+            tmpThis = tmpThis->next;
+            tmpThat = tmpThat->next;
+        }
+    
+        if (tmpThis->digits[idx] != tmpThat->digits[idx]) return 0;
+        idx++;
+    }
+    
+    return EQUAL;
+}
+
 int print(BigInt_t* bigInt) {
     if (!bigInt) return BIGINT_ERROR;
 
-    BigInt_t* tmp = bigInt;
-    int idx = 0;
+    if (bigInt->digits[0] == '-') printf("%c", bigInt->digits[0]);
 
-    for (int i = 0; i < bigInt->len; i++) {
+    BigInt_t* tmp = bigInt;
+    int idx = 1;
+
+    for (int i = 1; i < bigInt->len; i++) {
         if (idx == DIGIT_SIZE) {
             tmp = tmp->next;
             idx = 0;
