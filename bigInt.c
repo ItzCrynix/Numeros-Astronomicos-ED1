@@ -82,16 +82,13 @@ int greater(BigInt_t* bigIntThis, BigInt_t* bigIntThat) {
     int idx = 1;
     BigInt_t* tmpThis = bigIntThis;
     BigInt_t* tmpThat = bigIntThat;
-
-    if (!isNegativeThis && isNegativeThat) return GREATER;
-    if (isNegativeThis && !isNegativeThat) return 0;
     
-    if (!isNegativeThis && (lenThis > lenThat)) return GREATER;
-    else if (!isNegativeThis && (lenThis < lenThat)) return 0;
-    else if (isNegativeThis && (lenThis < lenThat)) return GREATER;
-    else if (isNegativeThis && (lenThis > lenThat)) return 0;
-    else {
-        if (!isNegativeThis) {
+    if (!isNegativeThis) {
+        if (isNegativeThat) return GREATER;
+
+        if (lenThis > lenThat) return GREATER;
+        else if (lenThis < lenThat) return 0;
+        else {
             for (int i = 1; i < lenThis; i++) {
                 if (idx == DIGIT_SIZE) {
                     idx = 0;
@@ -102,7 +99,13 @@ int greater(BigInt_t* bigIntThis, BigInt_t* bigIntThat) {
                 if (tmpThis->digits[idx] > tmpThat->digits[idx]) return GREATER;
                 idx++;
             }
-        } else {
+        }
+    } else {
+        if (!isNegativeThat) return 0;
+
+        if (lenThis < lenThat) return GREATER;
+        else if (lenThis > lenThat) return 0;
+        else {
             for (int i = 1; i < lenThis; i++) {
                 if (idx == DIGIT_SIZE) {
                     idx = 0;

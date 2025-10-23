@@ -2,8 +2,8 @@
 #include "bigInt.h"
 
 int main() {
-    BigInt_t* bigInt1 = define("-1000");
-    BigInt_t* bigInt2 = define("-1000");
+    BigInt_t* bigInt1 = define("+999");
+    BigInt_t* bigInt2 = define("+1000");
 
     print(bigInt1);
     print(bigInt2);
