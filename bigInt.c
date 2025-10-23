@@ -49,18 +49,15 @@ BigInt_t* define(char* digits) {
     return bigInt;
 }
 
-// 2 -> o numero 2 é maior
-// 1 -> o numero 1 é maior
-// 0 -> são iguais
-int compare_bigint(BigInt_t* number1, BigInt_t* number2) {
+int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
     if (!number1 || !number2) return BIGINT_ERROR;
 
     if (number1->isNegative && !number2->isNegative) 
-        return 2;
+        return LESS;
     else if (!number1->isNegative && number2->isNegative)
-        return 1;
+        return GREATER;
 
-    int result = 0;
+    int result = EQUAL;
 
     BigInt_t* tempNum1 = number1;
     BigInt_t* tempNum2 = number2;
@@ -68,11 +65,11 @@ int compare_bigint(BigInt_t* number1, BigInt_t* number2) {
     while (tempNum1 != NULL && tempNum2 != NULL) {
         for (int i = 0; i < DIGIT_SIZE; i++) {
             if (tempNum1->digits[i] > tempNum2->digits[i]) {
-                result = 1;
+                result = GREATER;
                 break;
             }
-            else if (tempNum1->digits[i] > tempNum2->digits[i]) {
-                result = 2;
+            else if (tempNum1->digits[i] < tempNum2->digits[i]) {
+                result = LESS;
                 break;
             }
         }
@@ -82,87 +79,12 @@ int compare_bigint(BigInt_t* number1, BigInt_t* number2) {
     }
 
     if (tempNum1 != NULL && tempNum1->isNegative) 
-        result = 2;
+        result = LESS;
     else if (tempNum2 != NULL && tempNum2->isNegative)
-        result = 1;
+        result = GREATER;
 
     return result;
 }
-
-// int equal(BigInt_t* bigIntThis, BigInt_t* bigIntThat) {
-//     if (!bigIntThis || !bigIntThat) return BIGINT_ERROR;
-
-//     int lenThis = bigIntThis->len;
-//     int lenThat = bigIntThat->len;
-//     int idx = 1;
-
-//     BigInt_t* tmpThis = bigIntThis;
-//     BigInt_t* tmpThat = bigIntThat;
-
-//     if (lenThis != lenThat) return 0;
-
-//     for (int i = 1; i < lenThis; i++) {
-//         if (idx == DIGIT_SIZE) {
-//             idx = 0;
-//             tmpThis = tmpThis->next;
-//             tmpThat = tmpThat->next;
-//         }
-    
-//         if (tmpThis->digits[idx] != tmpThat->digits[idx]) return 0;
-//         idx++;
-//     }
-    
-//     return EQUAL;
-// }
-
-// int greater(BigInt_t* bigIntThis, BigInt_t* bigIntThat) {
-//     if (!bigIntThis || !bigIntThat) return BIGINT_ERROR; 
-
-//     int lenThis = bigIntThis->len, lenThat = bigIntThat->len;
-//     int isNegativeThis = (bigIntThis->digits[0] == '-' ? 1 : 0);
-//     int isNegativeThat = (bigIntThat->digits[0] == '-' ? 1 : 0);
-//     int idx = 1;
-//     BigInt_t* tmpThis = bigIntThis;
-//     BigInt_t* tmpThat = bigIntThat;
-    
-//     if (!isNegativeThis) {
-//         if (isNegativeThat) return GREATER;
-
-//         if (lenThis > lenThat) return GREATER;
-//         else if (lenThis < lenThat) return 0;
-//         else {
-//             for (int i = 1; i < lenThis; i++) {
-//                 if (idx == DIGIT_SIZE) {
-//                     idx = 0;
-//                     tmpThis = tmpThis->next;
-//                     tmpThat = tmpThat->next;
-//                 }
-  
-//                 if (tmpThis->digits[idx] > tmpThat->digits[idx]) return GREATER;
-//                 idx++;
-//             }
-//         }
-//     } else {
-//         if (!isNegativeThat) return 0;
-
-//         if (lenThis < lenThat) return GREATER;
-//         else if (lenThis > lenThat) return 0;
-//         else {
-//             for (int i = 1; i < lenThis; i++) {
-//                 if (idx == DIGIT_SIZE) {
-//                     idx = 0;
-//                     tmpThis = tmpThis->next;
-//                     tmpThat = tmpThat->next;
-//                 }
-
-//                 if (tmpThis->digits[idx] < tmpThat->digits[idx]) return GREATER;
-//                 idx++;
-//             }
-//         }
-//     }
-
-//     return 0;
-// }
 
 int print_bigInt(BigInt_t* bigInt) {
     if (!bigInt) return BIGINT_ERROR;
