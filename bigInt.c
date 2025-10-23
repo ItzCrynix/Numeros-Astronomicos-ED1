@@ -23,6 +23,11 @@ BigInt_t* create() {
     return bigInt;
 }
 
+/*
+@brief Define a "BigInt" struct based on a string of digits.
+@param digits The string containing the desired number.
+@return Pointer to a "BigInt".
+*/
 BigInt_t* define(char* digits) {
     BigInt_t* bigInt = create();
 
@@ -49,6 +54,12 @@ BigInt_t* define(char* digits) {
     return bigInt;
 }
 
+/*
+@brief Compare two numbers; greater, less or equal.
+@param number1 Number that is going to be compared.
+@param number2 Number that the first parameter is going to be compared to.
+@return GREATER, LESS, or EQUAL.
+*/
 int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
     if (!number1 || !number2) return BIGINT_ERROR;
 
