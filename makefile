@@ -1,7 +1,7 @@
 CC := gcc
 CCFLAGS := -w
 
-build: bigint.h list.h
+build: bigint.h
 	$(CC) *.c -o main $(CCFLAGS)
 
 run:

@@ -12,11 +12,13 @@ typedef struct BigInt BigInt_t;
 BigInt_t* create();
 BigInt_t* define(char* digits);
 
-int equal(BigInt_t* bigIntThis, BigInt_t* bigIntThat);
-int greater(BigInt_t* bigIntThis, BigInt_t* bigIntThat);
-int less(BigInt_t* bigIntThis, BigInt_t* bigIntThat);
+// int equal(BigInt_t* bigIntThis, BigInt_t* bigIntThat);
+// int greater(BigInt_t* bigIntThis, BigInt_t* bigIntThat);
+// int less(BigInt_t* bigIntThis, BigInt_t* bigIntThat);
 
-int print(BigInt_t* bigInt);
+int compare_bigint(BigInt_t* number1, BigInt_t* number2);
+
+int print_bigInt(BigInt_t* bigInt);
 
 void destroy(BigInt_t** bigInt);
 
