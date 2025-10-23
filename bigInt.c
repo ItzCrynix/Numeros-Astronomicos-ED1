@@ -28,30 +28,38 @@ BigInt_t* create() {
 @param digits The string containing the desired number.
 @return Pointer to a "BigInt".
 */
-BigInt_t* define(char* digits) {
+int define(BigInt_t** addrbigInt, char* digits) {
+    if (!digits) return BIGINT_ERROR;
+    
     BigInt_t* bigInt = create();
+    *(addrbigInt) = bigInt;
 
     if (digits[0] == '-') 
         bigInt->isNegative = 1;
 
     int len = getLength(digits) - 1;
-    bigInt->len = len;
-    int idx = 0;
+    int idx = 0, aux = 1;
 
-    BigInt_t* tmp = bigInt;
-    
-    for (int i = 1; i <= len; i++) {
+    while (digits[aux] == '0') { 
+        aux++; 
+        len--; 
+    }
+
+    bigInt->len = len;
+
+    while (digits[aux] != '\0') {
         if (idx == DIGIT_SIZE) {
-            tmp->next = create();
-            tmp = tmp->next;
+            bigInt->next = create();
+            bigInt = bigInt->next;
             idx = 0;
         }
 
-        tmp->digits[idx] = digits[i];
-        idx++;
+        
+        bigInt->digits[idx] = digits[aux];
+        idx++; aux++;
     }
 
-    return bigInt;
+    return 1;
 }
 
 /*

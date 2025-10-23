@@ -10,7 +10,7 @@
 typedef struct BigInt BigInt_t;
 
 BigInt_t* create();
-BigInt_t* define(char* digits);
+int define(BigInt_t** bigInt, char* digits);
 
 int compare_bigInt(BigInt_t* number1, BigInt_t* number2);
 

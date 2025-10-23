@@ -2,14 +2,15 @@
 #include "bigInt.h"
 
 int main() {
-    BigInt_t* bigInt1 = define("-1000");
-    BigInt_t* bigInt2 = define("-1000");
+    BigInt_t* bigInt1, *bigInt2;
+    define(&bigInt1, "+10000");
+    define(&bigInt2, "-00003");
 
     print_bigInt(bigInt1);
     print_bigInt(bigInt2);
 
-    int resultado = compare_bigint(bigInt1, bigInt2);
-    
+    int resultado = compare_bigInt(bigInt1, bigInt2);
+
     switch (resultado) {
         case EQUAL:
             printf("Iguais\n");
