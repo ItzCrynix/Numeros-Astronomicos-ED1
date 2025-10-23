@@ -29,13 +29,13 @@ BigInt_t* define(char* digits) {
     if (digits[0] == '-') 
         bigInt->isNegative = 1;
 
-    int len = getLength(digits);
+    int len = getLength(digits) - 1;
     bigInt->len = len;
     int idx = 0;
 
     BigInt_t* tmp = bigInt;
     
-    for (int i = 1; i < len; i++) {
+    for (int i = 1; i <= len; i++) {
         if (idx == DIGIT_SIZE) {
             tmp->next = create();
             tmp = tmp->next;
@@ -178,9 +178,7 @@ int print_bigInt(BigInt_t* bigInt) {
             idx = 0;
         }
 
-        if (tmp->digits[idx] == '\0') break;
-
-        printf("%d", tmp->digits[idx] - '0');
+        printf("%c", tmp->digits[idx]);   
         idx++;
     }
 
