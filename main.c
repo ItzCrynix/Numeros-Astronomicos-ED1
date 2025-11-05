@@ -22,10 +22,12 @@ int main() {
             printf("Maior\n");
     }
 
-    add_bigInts(sum, bigInt1, bigInt2);
+    add_bigInts(&sum, bigInt1, bigInt2);
+    print_bigInt(sum);
 
     destroy(&bigInt1);
     destroy(&bigInt2);
+    destroy(&sum);  
 
     return 0;
 }

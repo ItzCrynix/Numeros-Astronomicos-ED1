@@ -1,5 +1,5 @@
 CC := gcc
-CCFLAGS := -w
+CCFLAGS := -Wall -Wpedantic -Wextra 
 
 .PHONY: all build run
 
