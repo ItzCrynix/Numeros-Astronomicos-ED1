@@ -55,7 +55,7 @@ int define(BigInt_t** bigInt, char* digits) {
         }
    
         tmp->digits[idx] = digits[aux];
-        idx++; aux++; len++;
+        idx++; aux++;
     }
 
     return BIGINT_SUCCESS;
