@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "bigInt.h"
 #include "utils.h"
 
@@ -18,7 +19,7 @@ BigInt_t* create() {
     if (!(bigInt->digits)) return NULL;
 
     bigInt->next = NULL;
-    bigInt->isNegative = 0;
+    bigInt->isNegative = 1;
 
     return bigInt;
 }
@@ -35,12 +36,12 @@ int define(BigInt_t** bigInt, char* digits) {
     *(bigInt) = tmp;
 
     if (digits[0] == '-') 
-        tmp->isNegative = 1;
+        tmp->isNegative = -1;
 
     int len = getLength(digits) - 1;
     int idx = 0, aux = 1;
 
-    while (digits[aux] == '0') { 
+    while (digits[aux] == '0' || digits[aux] == 0) { 
         aux++; 
         len--; 
     }
@@ -59,7 +60,7 @@ int define(BigInt_t** bigInt, char* digits) {
         idx++; aux++;
     }
 
-    return 1;
+    return BIGINT_SUCCESS;
 }
 
 /*
@@ -71,9 +72,9 @@ int define(BigInt_t** bigInt, char* digits) {
 int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
     if (!number1 || !number2) return BIGINT_ERROR;
 
-    if (number1->isNegative && !number2->isNegative) 
+    if (number1->isNegative == -1 && number2->isNegative == 1) 
         return LESS;
-    else if (!number1->isNegative && number2->isNegative)
+    else if (number1->isNegative == 1 && number2->isNegative == -1)
         return GREATER;
 
     int result = EQUAL;
@@ -97,9 +98,9 @@ int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
         tempNum2 = tempNum2->next;
     }
 
-    if (tempNum1 != NULL && tempNum1->isNegative) 
+    if (tempNum1 != NULL && tempNum1->isNegative == -1) 
         result = LESS;
-    else if (tempNum2 != NULL && tempNum2->isNegative)
+    else if (tempNum2 != NULL && tempNum2->isNegative == -1)
         result = GREATER;
 
     return result;
@@ -108,7 +109,7 @@ int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
 int print_bigInt(BigInt_t* bigInt) {
     if (!bigInt) return BIGINT_ERROR;
 
-    if (bigInt->isNegative) printf("-");
+    if (bigInt->isNegative == -1) printf("-");
 
     BigInt_t* tmp = bigInt;
     int idx = 0;
@@ -125,7 +126,7 @@ int print_bigInt(BigInt_t* bigInt) {
 
     printf("\n");
 
-    return 1;
+    return BIGINT_SUCCESS;
 }
 
 void destroy(BigInt_t** bigInt) {
@@ -141,4 +142,125 @@ void destroy(BigInt_t** bigInt) {
     }
 
     *bigInt = NULL;
+}
+
+int add_bigInts(BigInt_t* result, BigInt_t* number1, BigInt_t* number2) {
+    if (number1 == NULL || number2 == NULL) return BIGINT_ERROR;
+
+    char* addition_result;
+    addition_result = make_sum(number1, number2);
+
+    define(&result, addition_result);
+
+    free(addition_result);
+
+    return BIGINT_SUCCESS;
+}
+
+char* make_sum(BigInt_t* number1, BigInt_t* number2) {
+    int max_size = (number1->len > number2->len) ? number1->len : number2->len;
+    max_size += 3;
+
+    char* result = calloc(max_size, sizeof(char));
+    int resultIndex = max_size - 2;
+    
+    char* temp1 = to_string(number1);
+    printf("TEMP 1: %s\n", temp1);
+    char* temp2 = to_string(number2);
+    printf("TEMP 2: %s\n", temp2);
+
+    int carry = 0;
+    int indexNum1 = number1->len - 1, indexNum2 = number2->len - 1;
+
+    /* 
+    negativo + negativo
+        carry -1 se soma <= -10
+        carry 0 se soma entre -9 e -1
+    negativo + positivo
+        carry -1 se soma < 0
+        carry 0 se soma >= 0
+    positivo + positivo
+        carry 0 se soma < 10
+        carry 1 se soma >= 10
+    */
+    for (; resultIndex > 1; resultIndex--) {
+        printf("IDX: (1) %d, (2) %d\n", indexNum1, indexNum2);
+        int digit1 = (indexNum1 >= 0) ? (temp1[indexNum1] - '0') : 0;
+        int digit2 = (indexNum2 >= 0) ? (temp2[indexNum2] - '0') : 0;
+        
+        indexNum1--; indexNum2--;
+
+        printf("DIGITS: (1) %d, (2) %d\n", digit1, digit2);
+        int sum = digit1 * number1->isNegative + digit2 * number2->isNegative + carry;
+        
+        if (number1->isNegative == -1 && number2->isNegative == -1) {
+            if (sum <= -10) 
+                carry = -1;
+            else 
+                carry = 0;
+        } else if (number1->isNegative == 1 && number2->isNegative == 1) {
+            if (sum >= 10) 
+                carry = 1;
+            else 
+                carry = 0;
+        } else {
+            if (sum < 0) 
+                carry = -1;
+            else 
+                carry = 0;
+        }
+
+        sum = abs((sum + 10) % 10);
+        printf("SUM: (int) %d, (char) %c\n", sum, sum + '0');
+        result[resultIndex] = sum + '0';
+    }
+
+    /* Adiciona os digitos restantes do numero
+    while (indexNum1 < number1->len) {
+        result[resultIndex] = temp1[indexNum1];
+        resultIndex--; indexNum1--;
+    }
+
+    while (indexNum2 < number2->len) {
+        result[resultIndex] = temp2[indexNum2];
+        resultIndex--; indexNum2--;
+    }
+    */
+
+    if (carry < 0) {
+        result[resultIndex] = '1';
+        result[resultIndex - 1] = '-';
+    }
+    else {
+        result[resultIndex] = carry;
+        result[resultIndex - 1] = '+';
+    }
+
+    for (int i = 0; i < 10; i++) {
+        printf("%c", result[i]);    
+    }
+
+    printf("\n");
+    
+    return result;
+}
+
+char* to_string(BigInt_t* bigInt) {
+    if (!bigInt) return NULL;
+    
+    char* number = calloc(bigInt->len, sizeof(char));
+    int aux = 0;
+    BigInt_t* temp = bigInt;
+
+    while (temp != NULL) {
+        for (int i = 0; i < DIGIT_SIZE; i++) {
+            if (aux == bigInt->len) break;
+            number[aux] = temp->digits[i];
+            aux++;
+        }
+
+        temp = temp->next;
+    }
+
+    return number;
 }
