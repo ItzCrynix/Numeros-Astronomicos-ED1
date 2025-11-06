@@ -3,8 +3,8 @@
 
 int main() {
     BigInt_t* bigInt1, *bigInt2, *sum;
-    define_new_bigInt(&bigInt1, "-100999");
-    define_new_bigInt(&bigInt2, "-111");
+    define_new_bigInt(&bigInt1, "2500");
+    define_new_bigInt(&bigInt2, "113567");
 
     print_bigInt(bigInt1);
     print_bigInt(bigInt2);
@@ -24,7 +24,7 @@ int main() {
 
     add_bigInts(&sum, bigInt1, bigInt2);
     print_bigInt(sum);
-
+    
     destroy_bigInt(&bigInt1);
     destroy_bigInt(&bigInt2);
     destroy_bigInt(&sum);  

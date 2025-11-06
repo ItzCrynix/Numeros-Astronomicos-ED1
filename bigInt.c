@@ -51,13 +51,13 @@ void destroy_bigInt(BigInt_t** bigInt) {
 }
 
 /*
-@brief Asign a new number to an already existent BigInt.
+@brief Assign a new number to an already existent BigInt.
 @param bigInt The address to the BigInt you want to define a number
 @param digits The string containing the desired number.
 @return BIGINT_ERROR or BIGINT_SUCCESS
 */
 int define_new_bigInt(BigInt_t** bigInt, char* digits) {
-    if (digits != NULL) return BIGINT_ERROR;
+    if (!digits) return BIGINT_ERROR;
     
     BigInt_t* tmp = create_bigInt();
     *(bigInt) = tmp;
@@ -65,10 +65,10 @@ int define_new_bigInt(BigInt_t** bigInt, char* digits) {
     if (digits[0] == '-') 
         tmp->isNegative = -1;
 
-    int len = strlen(digits) - 1;
-    int idx = 0, aux = 1;
+    int len = strlen(digits);
+    int idx = 0, aux = 0;
 
-    while (digits[aux] == '0' || digits[aux] == 0) { 
+    while (digits[aux] == '0' || digits[aux] == 0 || digits[aux] == '+' || digits[aux] == '-') { 
         aux++; 
         len--;
     }
@@ -210,41 +210,42 @@ char* make_sum(BigInt_t* number1, BigInt_t* number2) {
     int indexNum1 = number1->len - 1;
     int indexNum2 = number2->len - 1;
 
-    int carry = 0;
+    int carry = 0, sign = 0; // 0 = positive, 1 = negative  
 
     for (; resultIndex > 1; resultIndex--) {
         int digit1 = (indexNum1 >= 0) ? (temp1[indexNum1] - '0') : 0;
         int digit2 = (indexNum2 >= 0) ? (temp2[indexNum2] - '0') : 0;
-        
         indexNum1--; 
         indexNum2--;
-
         int sum = digit1 * number1->isNegative + digit2 * number2->isNegative + carry;
-        
         if (number1->isNegative == -1 && number2->isNegative == -1) {
+            sign = 1;
             if (sum <= -10) 
                 carry = -1;
             else 
                 carry = 0;
         } else if (number1->isNegative == 1 && number2->isNegative == 1) {
+            sign = 0;
             if (sum >= 10) 
                 carry = 1;
             else 
                 carry = 0;
         } else {
-            if (sum < 0) {
+            if (sum > 0) {
+                sign = 1;
+                carry = 1;
+            } else if (sum < 0) {
                 carry = -1;
-                sum += 10;
-            }
-            else 
+                sign = 0;
+            } else
                 carry = 0;
         }
-
-        int result_digit = abs(sum % 10);
+        
+        int result_digit = (sum % 10 + 10) % 10;
         result[resultIndex] = result_digit + '0';
     }
 
-    if (carry < 0 || (number1->isNegative == -1 && number2->isNegative == -1))
+    if (sign)
         result[0] = '-';
     else
         result[0] = '+';
