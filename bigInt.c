@@ -52,7 +52,7 @@ void destroy_bigInt(BigInt_t** bigInt) {
 
 /*
 @brief Assign a new number to an already existent BigInt.
-@param bigInt The address to the BigInt you want to define a number
+@param bigInt The address to the BigInt you want to define.
 @param digits The string containing the desired number.
 @return BIGINT_ERROR or BIGINT_SUCCESS
 */
@@ -124,7 +124,7 @@ char* to_string(BigInt_t* bigInt) {
 
 /*
 @brief Prints a bigInt type on the console
-@param bigInt the number you want to print
+@param bigInt The number you want to print
 @return BIGINT_ERROR or BIGINT_SUCCESS
 */
 int print_bigInt(BigInt_t* bigInt) {
@@ -157,7 +157,7 @@ int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
         return GREATER;
 
     int result = EQUAL;
-
+    
     BigInt_t* tempNum1 = number1;
     BigInt_t* tempNum2 = number2;
 
@@ -172,14 +172,14 @@ int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
                 break;
             }
         }
-
+        
         tempNum1 = tempNum1->next;
         tempNum2 = tempNum2->next;
     }
 
-    if (tempNum1 != NULL && tempNum1->isNegative == -1) 
+    if ((tempNum1 != NULL && number1->isNegative == -1)) 
         result = LESS;
-    else if (tempNum2 != NULL && tempNum2->isNegative == -1)
+    else if ((tempNum2 != NULL && number2->isNegative == -1))
         result = GREATER;
 
     return result;
