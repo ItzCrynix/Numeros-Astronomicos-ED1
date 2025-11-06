@@ -57,7 +57,7 @@ void destroy_bigInt(BigInt_t** bigInt) {
 @return BIGINT_ERROR or BIGINT_SUCCESS
 */
 int define_new_bigInt(BigInt_t** bigInt, char* digits) {
-    if (!digits) return BIGINT_ERROR;
+    if (digits != NULL) return BIGINT_ERROR;
     
     BigInt_t* tmp = create_bigInt();
     *(bigInt) = tmp;
@@ -93,14 +93,18 @@ int define_new_bigInt(BigInt_t** bigInt, char* digits) {
 // Utils
 //
 
+
 /*
 @brief Turns a "BigInt" into a string.
 @param bigInt "BigInt" which will be turned into a string.
 @return A string containing the value of "BigInt"
 */
-char* to_string(BigInt_t* bigInt) {
-    if (!bigInt) return NULL;
-    
+char* to_string(BigInt_t* bigInt) { 
+    /*
+    Como essa função não foi definida no header, se trata de uma função privada. 
+    Só chamamos ela quando temos certeza que nenhum dos bigint é NULL
+    */
+
     char* number = calloc(bigInt->len, sizeof(char));
 
     BigInt_t* temp = bigInt;
@@ -188,6 +192,11 @@ int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
 @return String which contains the sum.
 */
 char* make_sum(BigInt_t* number1, BigInt_t* number2) {
+    /*
+    Como essa função não foi definida no header, se trata de uma função privada. 
+    Só chamamos ela quando temos certeza que nenhum dos bigint é NULL
+    */
+
     int max_size = (number1->len > number2->len) ? number1->len : number2->len;
     max_size += 3;
 
