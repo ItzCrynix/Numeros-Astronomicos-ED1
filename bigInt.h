@@ -13,16 +13,13 @@ typedef enum ReturnTypes {
 
 typedef struct BigInt BigInt_t;
 
-BigInt_t* create();
-int define(BigInt_t** bigInt, char* digits);
+BigInt_t* create_bigInt();
+void destroy_bigInt(BigInt_t** bigInt);
+int define_new_bigInt(BigInt_t** bigInt, char* digits);
 
 int print_bigInt(BigInt_t* bigInt);
-char* to_string(BigInt_t* BigInt);
 
 int compare_bigInt(BigInt_t* number1, BigInt_t* number2);
 int add_bigInts(BigInt_t** result, BigInt_t* number1, BigInt_t* number2);
-char* make_sum(BigInt_t* number1, BigInt_t* number2);
-
-void destroy(BigInt_t** bigInt);
 
 #endif

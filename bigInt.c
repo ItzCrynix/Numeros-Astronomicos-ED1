@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "bigInt.h"
-#include "utils.h"
 
 struct BigInt {
     char* digits;
@@ -10,7 +10,15 @@ struct BigInt {
     struct BigInt* next;
 };
 
-BigInt_t* create() {
+//
+// Initialization functions
+//
+
+/*
+@brief Creates a new, empty BigInt number
+@return A pointer to the new BigInt
+*/
+BigInt_t* create_bigInt() {
     BigInt_t* bigInt = (BigInt_t*) malloc(sizeof(BigInt_t));
     if (!bigInt) return NULL;
 
@@ -24,20 +32,40 @@ BigInt_t* create() {
 }
 
 /*
-@brief Define a "BigInt" struct based on a string of digits.
-@param digits The string containing the desired number.
-@return Pointer to a "BigInt".
+@brief Free the memory of a BigInt
+@param bigInt The BigInt you want to free
 */
-int define(BigInt_t** bigInt, char* digits) {
+void destroy_bigInt(BigInt_t** bigInt) {
+    if (!bigInt) return;
+
+    BigInt_t* head = (*bigInt);
+
+    while (head != NULL) {
+        BigInt_t* tmp = head;
+        head = head->next;
+        free(tmp->digits);
+        free(tmp); 
+    }
+
+    *bigInt = NULL;
+}
+
+/*
+@brief Asign a new number to an already existent BigInt.
+@param bigInt The address to the BigInt you want to define a number
+@param digits The string containing the desired number.
+@return BIGINT_ERROR or BIGINT_SUCCESS
+*/
+int define_new_bigInt(BigInt_t** bigInt, char* digits) {
     if (!digits) return BIGINT_ERROR;
     
-    BigInt_t* tmp = create();
+    BigInt_t* tmp = create_bigInt();
     *(bigInt) = tmp;
 
     if (digits[0] == '-') 
         tmp->isNegative = -1;
 
-    int len = getLength(digits) - 1;
+    int len = strlen(digits) - 1;
     int idx = 0, aux = 1;
 
     while (digits[aux] == '0' || digits[aux] == 0) { 
@@ -49,7 +77,7 @@ int define(BigInt_t** bigInt, char* digits) {
 
     while (digits[aux] != '\0') {
         if (idx == DIGIT_SIZE) {
-            tmp->next = create();
+            tmp->next = create_bigInt();
             tmp = tmp->next;
             idx = 0;
         }
@@ -60,6 +88,55 @@ int define(BigInt_t** bigInt, char* digits) {
 
     return BIGINT_SUCCESS;
 }
+
+//
+// Utils
+//
+
+/*
+@brief Turns a "BigInt" into a string.
+@param bigInt "BigInt" which will be turned into a string.
+@return A string containing the value of "BigInt"
+*/
+char* to_string(BigInt_t* bigInt) {
+    if (!bigInt) return NULL;
+    
+    char* number = calloc(bigInt->len, sizeof(char));
+
+    BigInt_t* temp = bigInt;
+    int aux = 0;
+    while (temp != NULL) {
+        for (int i = 0; i < DIGIT_SIZE; i++) {
+            if (aux == bigInt->len) break;
+            number[aux] = temp->digits[i];
+            aux++;
+        }
+
+        temp = temp->next;
+    }
+
+    return number;
+}
+
+/*
+@brief Prints a bigInt type on the console
+@param bigInt the number you want to print
+@return BIGINT_ERROR or BIGINT_SUCCESS
+*/
+int print_bigInt(BigInt_t* bigInt) {
+    if (!bigInt) return BIGINT_ERROR;
+
+    if (bigInt->isNegative == -1) printf("-");
+
+    char* str = to_string(bigInt);
+    printf("%s\n", str);
+
+    return BIGINT_SUCCESS;
+}
+
+//
+// Arithmetic and Logic Operations
+//
 
 /*
 @brief Compare two numbers; greater, less or equal.
@@ -105,26 +182,6 @@ int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
 }
 
 /*
-@brief Adds two "BigInts" together, the result of which will be in the "result" parameter.
-@param result Pointer to a pointer to a "BigInt" where the sum will be stored.
-@param number1 Pointer to the first number.
-@param number2 Pointer to the second number.
-@return BIGINT_SUCCESS or BIGINT_ERROR.
-*/
-int add_bigInts(BigInt_t** result, BigInt_t* number1, BigInt_t* number2) {
-    if (number1 == NULL || number2 == NULL) return BIGINT_ERROR;
-
-    char* addition_result;
-    addition_result = make_sum(number1, number2);
-
-    define(result, addition_result);
-
-    free(addition_result);
-
-    return BIGINT_SUCCESS;
-}
-
-/*
 @brief Given two "BigInts", turns them into strings, adds each digit and places that in a new string.
 @param number1 The first number in the operation.
 @param number2 The second number in the operation.
@@ -134,20 +191,24 @@ char* make_sum(BigInt_t* number1, BigInt_t* number2) {
     int max_size = (number1->len > number2->len) ? number1->len : number2->len;
     max_size += 3;
 
+    // String containing the sum
     char* result = calloc(max_size, sizeof(char));
     int resultIndex = max_size - 2;
     
+    // Temporary strings to do the calculations
     char* temp1 = to_string(number1);
     char* temp2 = to_string(number2);
+    int indexNum1 = number1->len - 1;
+    int indexNum2 = number2->len - 1;
 
     int carry = 0;
-    int indexNum1 = number1->len - 1, indexNum2 = number2->len - 1;
 
     for (; resultIndex > 1; resultIndex--) {
         int digit1 = (indexNum1 >= 0) ? (temp1[indexNum1] - '0') : 0;
         int digit2 = (indexNum2 >= 0) ? (temp2[indexNum2] - '0') : 0;
         
-        indexNum1--; indexNum2--;
+        indexNum1--; 
+        indexNum2--;
 
         int sum = digit1 * number1->isNegative + digit2 * number2->isNegative + carry;
         
@@ -162,87 +223,46 @@ char* make_sum(BigInt_t* number1, BigInt_t* number2) {
             else 
                 carry = 0;
         } else {
-            if (sum < 0) 
+            if (sum < 0) {
                 carry = -1;
+                sum += 10;
+            }
             else 
                 carry = 0;
         }
 
-        sum = abs((sum + 10) % 10);
-        result[resultIndex] = sum + '0';
+        int result_digit = abs(sum % 10);
+        result[resultIndex] = result_digit + '0';
     }
 
-    if (carry < 0) {
-        result[resultIndex] = '1';
-        result[resultIndex - 1] = '-';
-    }
-    else {
-        result[resultIndex] = carry + '0';
-        result[resultIndex - 1] = '+';
-    }
+    if (carry < 0 || (number1->isNegative == -1 && number2->isNegative == -1))
+        result[0] = '-';
+    else
+        result[0] = '+';
+
+    result[1] = carry + '0';
+
+    free(temp1);
+    free(temp2);
 
     return result;
 }
 
 /*
-@brief Turns a "BigInt" into a string.
-@param bigInt "BigInt" which will be turned into a string.
-@return A string containing the value of "BigInt"
+@brief Adds two "BigInts" together, the result of which will be in the "result" parameter.
+@param result Pointer to a pointer to a "BigInt" where the sum will be stored.
+@param number1 Pointer to the first number.
+@param number2 Pointer to the second number.
+@return BIGINT_SUCCESS or BIGINT_ERROR.
 */
-char* to_string(BigInt_t* bigInt) {
-    if (!bigInt) return NULL;
-    
-    char* number = calloc(bigInt->len, sizeof(char));
-    int aux = 0;
-    BigInt_t* temp = bigInt;
+int add_bigInts(BigInt_t** result, BigInt_t* number1, BigInt_t* number2) {
+    if (number1 == NULL || number2 == NULL) return BIGINT_ERROR;
 
-    while (temp != NULL) {
-        for (int i = 0; i < DIGIT_SIZE; i++) {
-            if (aux == bigInt->len) break;
-            number[aux] = temp->digits[i];
-            aux++;
-        }
+    char* addition_result = make_sum(number1, number2);
 
-        temp = temp->next;
-    }
+    define_new_bigInt(result, addition_result);
 
-    return number;
-}
-
-int print_bigInt(BigInt_t* bigInt) {
-    if (!bigInt) return BIGINT_ERROR;
-
-    if (bigInt->isNegative == -1) printf("-");
-
-    BigInt_t* tmp = bigInt;
-    int idx = 0;
-
-    for (int i = 0; i < bigInt->len; i++) {
-        if (idx == DIGIT_SIZE) {
-            tmp = tmp->next;
-            idx = 0;
-        }
-
-        printf("%c", tmp->digits[idx]);   
-        idx++;
-    }
-
-    printf("\n");
+    free(addition_result);
 
     return BIGINT_SUCCESS;
-}
-
-void destroy(BigInt_t** bigInt) {
-    if (!bigInt) return;
-
-    BigInt_t* head = (*bigInt);
-
-    while (head != NULL) {
-        BigInt_t* tmp = head;
-        head = head->next;
-        free(tmp->digits);
-        free(tmp); 
-    }
-
-    *bigInt = NULL;
 }
