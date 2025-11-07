@@ -130,10 +130,10 @@ char* to_string(BigInt_t* bigInt) {
 int print_bigInt(BigInt_t* bigInt) {
     if (!bigInt) return BIGINT_ERROR;
 
-    if (bigInt->isNegative == -1) printf("-");
+    if (bigInt->isNegative == -1) fprintf(stdout, "-");
 
     char* str = to_string(bigInt);
-    printf("%s\n", str);
+    fprintf(stdout, "%s\n", str);
 
     return BIGINT_SUCCESS;
 }
@@ -164,22 +164,22 @@ int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
     while (tempNum1 != NULL && tempNum2 != NULL) {
         for (int i = 0; i < DIGIT_SIZE; i++) {
             if (tempNum1->digits[i] > tempNum2->digits[i]) {
-                result = GREATER;
+                if (result == EQUAL) result = GREATER;
                 break;
             }
             else if (tempNum1->digits[i] < tempNum2->digits[i]) {
-                result = LESS;
+                if (result == EQUAL) result = LESS;
                 break;
             }
         }
-        
+
         tempNum1 = tempNum1->next;
         tempNum2 = tempNum2->next;
     }
 
-    if ((tempNum1 != NULL && number1->isNegative == -1)) 
+    if ((tempNum1 != NULL && number1->isNegative == -1) || ((number2->len > number1->len) && number2->isNegative == 1)) 
         result = LESS;
-    else if ((tempNum2 != NULL && number2->isNegative == -1))
+     else if ((tempNum2 != NULL && number2->isNegative == -1) || ((number1->len > number2->len) && number1->isNegative == 1)) 
         result = GREATER;
 
     return result;
