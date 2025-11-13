@@ -105,7 +105,7 @@ char* to_string(BigInt_t* bigInt) {
     Só chamamos ela quando temos certeza que nenhum dos bigint é NULL
     */
 
-    char* number = calloc(bigInt->len, sizeof(char));
+    char* number = calloc(bigInt->len + 1, sizeof(char));
 
     BigInt_t* temp = bigInt;
     int aux = 0;

@@ -1,11 +1,11 @@
 CC := gcc
-CCFLAGS := -Wall -Wpedantic -Wextra 
+CCFLAGS := -Wall -Wpedantic -Wextra -O3 -march=native 
 
 .PHONY: all build run
 
 all: build run
 
-build: bigint.h
+build: bigInt.h
 	$(CC) *.c -o main $(CCFLAGS)
 
 run:
