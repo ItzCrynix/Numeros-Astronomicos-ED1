@@ -102,8 +102,8 @@ int define_new_bigInt(BigInt_t** bigInt, char* digits) {
 */
 char* to_string(BigInt_t* bigInt) { 
     /*
-    Como essa função não foi definida no header, se trata de uma função privada. 
-    Só chamamos ela quando temos certeza que nenhum dos bigint é NULL
+    This is a private function, so it can only be called in this file.
+    We only call it when we are sure none of the "BigInts" are NULL.
     */
 
     char* number = calloc(bigInt->len + 1, sizeof(char));
