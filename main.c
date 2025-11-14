@@ -3,8 +3,8 @@
 #include "bigInt.h"
 
 int main() {
-    const char inputFile[10] = "1.in";
-    FILE* file = fopen(inputFile, "r"); //----> .in files that can be used to test; reminder to change input from stdin to file
+    //const char inputFile[10] = "1.in";
+    //FILE* file = fopen(inputFile, "r"); //----> .in files that can be used to test; reminder to change input from stdin to file
     /*
     fprintf(stdout, "---------\n"
         "Steps on how to run:\n"
@@ -68,7 +68,7 @@ int main() {
         }
     }
 
-    fclose(file);
+    //fclose(file);
     
     return 0;
 }
