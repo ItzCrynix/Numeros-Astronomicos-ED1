@@ -2,6 +2,12 @@
 #include <string.h>
 #include "bigInt.h"
 
+/*
+Aluno: Cainan Loyola Schiavolin         | NºUSP: 15444319
+Aluno: João Pedro Correia Caetano       | NºUSP: 16987067
+Aluno: Luís Gustavo Vieira Antoniosi    | NºUSP: 17067476
+*/
+
 int main() {
     //const char inputFile[10] = "1.in";
     //FILE* file = fopen(inputFile, "r"); //----> .in files that can be used to test; reminder to change input from stdin to file
@@ -28,7 +34,7 @@ int main() {
             for (int i = 0; i < iterations; i++) {
                 BigInt_t* num1, *num2;
                 if (fgets(buffer, 256, stdin)) {
-                    buffer[strcspn(buffer, "\n")] = 0; // removing \n from buffer
+                    buffer[strcspn(buffer, "\r\n")] = 0; // removing \r\n from buffer
                     char* input = strtok(buffer, " ");
                     int steps = 0, operation = 0;
                     while (input) {

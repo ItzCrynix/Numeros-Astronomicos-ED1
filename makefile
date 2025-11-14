@@ -1,13 +1,21 @@
-CC := gcc
-CCFLAGS := -Wall -Wpedantic -Wextra -O3 -march=native 
+CC	:=	gcc
+CCFLAGS :=	-std=c11 -Wall -Wpedantic -Wextra -O3 -march=native
+TARGET	:=	main
+OBJS	:=	main.o bigInt.o
 
-.PHONY: all build run
+.PHONY: all clean run
 
-all: build run
+all: $(TARGET)
 
-build: bigInt.h
-	$(CC) *.c -o main $(CCFLAGS)
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) -o $@
 
-run:
-	./main
+%.o: %.c bigInt.h
+	$(CC) $(CFLAGS) -c $<
+
+run: $(TARGET)
+	./$(TARGET)
+
+clean:
+	rm -f $(OBJS) $(TARGET)
 
