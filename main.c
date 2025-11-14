@@ -3,8 +3,8 @@
 #include "bigInt.h"
 
 int main() {
-    //const char inputFile[10] = "2.in";
-    //FILE* file = fopen(inputFile, "r"); //----> .in files that can be used to test; reminder to change input from stdin to file
+    const char inputFile[10] = "1.in";
+    FILE* file = fopen(inputFile, "r"); //----> .in files that can be used to test; reminder to change input from stdin to file
     /*
     fprintf(stdout, "---------\n"
         "Steps on how to run:\n"
@@ -53,7 +53,7 @@ int main() {
                     fprintf(stdout, "Resultado :: ");
                     if (operation == 3) {
                         BigInt_t* sum;
-                        add_bigInts(&sum, num1, num2);
+                        operate_bigInt(&sum, num1, num2);
                         print_bigInt(sum);
                         destroy_bigInt(&sum);
                     } else {
@@ -68,7 +68,7 @@ int main() {
         }
     }
 
-    //fclose(file);
+    fclose(file);
     
     return 0;
 }

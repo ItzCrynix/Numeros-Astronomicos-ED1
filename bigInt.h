@@ -18,6 +18,6 @@ int define_new_bigInt(BigInt_t** bigInt, char* digits);
 int print_bigInt(BigInt_t* bigInt);
 
 int compare_bigInt(BigInt_t* number1, BigInt_t* number2);
-int add_bigInts(BigInt_t** result, BigInt_t* number1, BigInt_t* number2);
+int operate_bigInt(BigInt_t** result, BigInt_t* number1, BigInt_t* number2);
 
 #endif

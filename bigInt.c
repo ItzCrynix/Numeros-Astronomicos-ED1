@@ -66,9 +66,10 @@ int define_new_bigInt(BigInt_t** bigInt, char* digits) {
         tmp->isNegative = -1;
 
     int len = strlen(digits);
-    int idx = 0, aux = 0;
+    int idx = 0, aux = 0, tmpLen = len - 1;
 
     while (digits[aux] == '0' || digits[aux] == 0 || digits[aux] == '+' || digits[aux] == '-') { 
+        if (aux == tmpLen) break;
         aux++; 
         len--;
     }
@@ -186,71 +187,49 @@ int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
 }
 
 /*
-@brief Given two "BigInts", turns them into strings, adds each digit and places that in a new string.
-@param number1 The first number in the operation.
-@param number2 The second number in the operation.
-@return String which contains the sum.
+All three functions before "operate_bigInt" are private functions, which can only be called through here; the user doesn't have access to it directly.
+We only call them when we are sure none of the "BigInts" are NULL.
 */
-char* make_sum(BigInt_t* number1, BigInt_t* number2) {
-    /*
-    Como essa função não foi definida no header, se trata de uma função privada. 
-    Só chamamos ela quando temos certeza que nenhum dos bigint é NULL
-    */
 
-    int max_size = (number1->len > number2->len) ? number1->len : number2->len;
-    max_size += 3;
+/*
+@brief Adds two "BigInts", is only called through "operate_bigInt" when both numbers have the same sign.
+@param number1 First "BigInt" in the operation.
+@param number2 Second "BigInt" in the operation.
+@return A string containing the sum.
+*/
+char* add_bigInt(BigInt_t* number1, BigInt_t* number2) {
+    int max_len = (number1->len > number2->len) ? number1->len : number2->len;
+    max_len += 3; // Taking the sign ('+' or '-'), the null terminator and the max length of a sum (largest numLength + 1) into account.
 
-    // String containing the sum
-    char* result = calloc(max_size, sizeof(char));
-    int resultIndex = max_size - 2;
-    
-    // Temporary strings to do the calculations
+    char* result = calloc(max_len, sizeof(char));
+    int resultIdx = max_len - 2;
+
+    // Since "BigInt" is a linked list and starts from the most significant digit, turning them into strings beforehand sounded like the best approach. 
     char* temp1 = to_string(number1);
     char* temp2 = to_string(number2);
-    int indexNum1 = number1->len - 1;
-    int indexNum2 = number2->len - 1;
+    int num1Idx = number1->len - 1;
+    int num2Idx = number2->len - 1;
 
-    int carry = 0, sign = 0; // 0 = positive, 1 = negative  
+    int carry = 0;
 
-    for (; resultIndex > 1; resultIndex--) {
-        int digit1 = (indexNum1 >= 0) ? (temp1[indexNum1] - '0') : 0;
-        int digit2 = (indexNum2 >= 0) ? (temp2[indexNum2] - '0') : 0;
-        indexNum1--; 
-        indexNum2--;
-        int sum = digit1 * number1->isNegative + digit2 * number2->isNegative + carry;
-        if (number1->isNegative == -1 && number2->isNegative == -1) {
-            sign = 1;
-            if (sum <= -10) 
-                carry = -1;
-            else 
-                carry = 0;
-        } else if (number1->isNegative == 1 && number2->isNegative == 1) {
-            sign = 0;
-            if (sum >= 10) 
-                carry = 1;
-            else 
-                carry = 0;
-        } else {
-            if (sum > 0) {
-                sign = 1;
-                carry = 1;
-            } else if (sum < 0) {
-                carry = -1;
-                sign = 0;
-            } else
-                carry = 0;
-        }
-        
-        int result_digit = (sum % 10 + 10) % 10;
-        result[resultIndex] = result_digit + '0';
+    while (resultIdx > 0) {
+        int digit1 = (num1Idx >= 0) ? (temp1[num1Idx] - '0') : 0;
+        int digit2 = (num2Idx >= 0) ? (temp2[num2Idx] - '0') : 0;
+        num1Idx--; num2Idx--;
+
+        int sum = digit1 + digit2 + carry;
+        carry = sum / 10;
+
+        char resultDigit = ((sum % 10) + '0');
+        result[resultIdx] = resultDigit;
+
+        resultIdx--;
     }
 
-    if (sign)
-        result[0] = '-';
-    else
+    if (number1->isNegative == 1)
         result[0] = '+';
-
-    result[1] = carry + '0';
+    else
+        result[0] = '-';
 
     free(temp1);
     free(temp2);
@@ -259,20 +238,115 @@ char* make_sum(BigInt_t* number1, BigInt_t* number2) {
 }
 
 /*
-@brief Adds two "BigInts" together, the result of which will be in the "result" parameter.
+@brief Subtracts two "BigInts", is only called through "operate_bigInt" when the numbers have different signs.
+@param number1 First "BigInt" in the operation.
+@param number2 Second "BigInt" in the operation.
+@return A string containing the subtraction.
+*/
+char* subt_bigInt(BigInt_t* number1, BigInt_t* number2) {
+    int max_len = number1->len; // First number is always greater than the second in this case.
+    max_len += 2; // Taking the sign ('+' or '-') and the null terminator into account.
+
+    char* result = calloc(max_len, sizeof(char));
+    int resultIdx = max_len - 2; 
+
+    // Since "BigInt" is a linked list and starts from the most significant digit, turning them into strings beforehand sounded like the best approach. 
+    char* temp1 = to_string(number1);
+    char* temp2 = to_string(number2);
+    int num1Idx = number1->len - 1;
+    int num2Idx = number2->len - 1;
+
+    int borrow = 0;
+    
+    while (resultIdx > 0) { 
+        int digit1 = (num1Idx >= 0) ? (temp1[num1Idx] - '0') : 0;
+        int digit2 = (num2Idx >= 0) ? (temp2[num2Idx] - '0') : 0;
+        num1Idx--; num2Idx--;
+
+        int subtraction = digit1 - digit2 - borrow;
+      
+        if (subtraction < 0) {
+            subtraction += 10;
+            borrow = 1;
+        } else 
+            borrow = 0;
+
+        char resultDigit = (subtraction + '0');
+        result[resultIdx] = resultDigit;
+        resultIdx--;
+    }
+
+    if (number1->isNegative == 1)
+        result[0] = '+';
+    else
+        result[0] = '-';
+
+    free(temp1);
+    free(temp2);
+
+    return result;
+}
+
+/*
+@brief Compares the absolute value of both "BigInts". Called in "operate_bigInt" to know which number should go first in the subtraction.
+@param number1 First number.
+@param number2 Number that the first one will be compared to.
+@return GREATER, EQUAL or LESS.
+*/
+int compare_abs_bigInt(BigInt_t* number1, BigInt_t* number2) {
+    if (number1->len > number2->len) return GREATER;
+    else if (number1->len < number2->len) return LESS;
+    else {
+        char* num1 = to_string(number1), *num2 = to_string(number2);
+        int condition = strcmp(num1, num2);
+        free(num1); 
+        free(num2);
+        
+        if (condition > 0)
+            return GREATER;
+        else if (condition < 0)
+            return LESS;
+        else
+            return EQUAL;
+
+    }
+}
+
+/*
+@brief Does an operation (sum or subtraction) on two "BigInts" based on their sign (negative or positive), the result of which will be in the "result" parameter.
 @param result Pointer to a pointer to a "BigInt" where the sum will be stored.
 @param number1 Pointer to the first number.
 @param number2 Pointer to the second number.
 @return BIGINT_SUCCESS or BIGINT_ERROR.
 */
-int add_bigInts(BigInt_t** result, BigInt_t* number1, BigInt_t* number2) {
+int operate_bigInt(BigInt_t** result, BigInt_t* number1, BigInt_t* number2) {
     if (number1 == NULL || number2 == NULL) return BIGINT_ERROR;
 
-    char* addition_result = make_sum(number1, number2);
+    char* operation_result;
 
-    define_new_bigInt(result, addition_result);
+    // If both numbers have the same sign, do a normal addition
+    if ((number1->isNegative == -1 && number2->isNegative == -1) || (number1->isNegative == 1 && number2->isNegative == 1))
+        operation_result = add_bigInt(number1, number2);
+    else {
+        // If they have different signs, compare to find which one is greater.
+        int condition = compare_abs_bigInt(number1, number2);
+        // Do a subtraction based on the condition (if |A| > |B| : A-B, else: B - A). Subtraction isn't needed if both are equal.
+        switch (condition) {
+            case GREATER:
+                operation_result = subt_bigInt(number1, number2);
+                break;
+            case LESS:
+                operation_result = subt_bigInt(number2, number1);
+                break;
+            case EQUAL:
+                operation_result = calloc(2, sizeof(char));
+                operation_result[0] = '0';        
+            }
+    }
 
-    free(addition_result);
+    define_new_bigInt(result, operation_result);
+
+    free(operation_result);
 
     return BIGINT_SUCCESS;
 }
