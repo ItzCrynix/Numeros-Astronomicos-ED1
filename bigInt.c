@@ -26,7 +26,7 @@ BigInt_t* create_bigInt() {
     if (!(bigInt->digits)) return NULL;
 
     bigInt->next = NULL;
-    bigInt->isNegative = 1;
+    bigInt->isNegative = 0;
 
     return bigInt;
 }
@@ -63,7 +63,7 @@ int define_new_bigInt(BigInt_t** bigInt, char* digits) {
     *(bigInt) = tmp;
 
     if (digits[0] == '-') 
-        tmp->isNegative = -1;
+        tmp->isNegative = 1;
 
     int len = strlen(digits);
     int idx = 0, aux = 0, tmpLen = len - 1;
@@ -131,7 +131,7 @@ char* to_string(BigInt_t* bigInt) {
 int print_bigInt(BigInt_t* bigInt) {
     if (!bigInt) return BIGINT_ERROR;
 
-    if (bigInt->isNegative == -1) fprintf(stdout, "-");
+    if (bigInt->isNegative) fprintf(stdout, "-");
 
     char* str = to_string(bigInt);
     fprintf(stdout, "%s\n", str);
@@ -152,9 +152,9 @@ int print_bigInt(BigInt_t* bigInt) {
 int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
     if (!number1 || !number2) return BIGINT_ERROR;
 
-    if (number1->isNegative == -1 && number2->isNegative == 1) 
+    if (number1->isNegative && !number2->isNegative) 
         return LESS;
-    else if (number1->isNegative == 1 && number2->isNegative == -1)
+    else if (!number1->isNegative && number2->isNegative)
         return GREATER;
 
     int result = EQUAL;
@@ -178,9 +178,9 @@ int compare_bigInt(BigInt_t* number1, BigInt_t* number2) {
         tempNum2 = tempNum2->next;
     }
 
-    if ((tempNum1 != NULL && number1->isNegative == -1) || ((number2->len > number1->len) && number2->isNegative == 1)) 
+    if ((tempNum1 != NULL && number1->isNegative) || ((number2->len > number1->len) && !number2->isNegative)) 
         result = LESS;
-     else if ((tempNum2 != NULL && number2->isNegative == -1) || ((number1->len > number2->len) && number1->isNegative == 1)) 
+     else if ((tempNum2 != NULL && number2->isNegative) || ((number1->len > number2->len) && !number1->isNegative)) 
         result = GREATER;
 
     return result;
@@ -226,7 +226,7 @@ char* add_bigInt(BigInt_t* number1, BigInt_t* number2) {
         resultIdx--;
     }
 
-    if (number1->isNegative == 1)
+    if (!number1->isNegative)
         result[0] = '+';
     else
         result[0] = '-';
@@ -276,7 +276,7 @@ char* subt_bigInt(BigInt_t* number1, BigInt_t* number2) {
         resultIdx--;
     }
 
-    if (number1->isNegative == 1)
+    if (!number1->isNegative)
         result[0] = '+';
     else
         result[0] = '-';
@@ -325,7 +325,7 @@ int operate_bigInt(BigInt_t** result, BigInt_t* number1, BigInt_t* number2) {
     char* operation_result;
 
     // If both numbers have the same sign, do a normal addition
-    if ((number1->isNegative == -1 && number2->isNegative == -1) || (number1->isNegative == 1 && number2->isNegative == 1))
+    if ((number1->isNegative && number2->isNegative) || (!number1->isNegative && !number2->isNegative))
         operation_result = add_bigInt(number1, number2);
     else {
         // If they have different signs, compare to find which one is greater.
