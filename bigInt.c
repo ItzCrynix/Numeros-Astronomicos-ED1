@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include "bigInt.h"
 
 struct BigInt {
@@ -52,7 +51,7 @@ void destroy_bigInt(BigInt_t** bigInt) {
 }
 
 /*
-@brief Assign a new number to an already existent BigInt.
+@brief Assign a new number to a new BigInt (pointer).
 @param bigInt The address to the BigInt you want to define.
 @param digits The string containing the desired number.
 @return BIGINT_ERROR or BIGINT_SUCCESS
