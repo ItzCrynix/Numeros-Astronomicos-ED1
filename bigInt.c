@@ -95,35 +95,6 @@ int define_new_bigInt(BigInt_t** bigInt, char* digits) {
 // Utils
 //
 
-
-/*
-@brief Turns a "BigInt" into a string.
-@param bigInt "BigInt" which will be turned into a string.
-@return A string containing the value of "BigInt"
-*/
-char* to_string(BigInt_t* bigInt) { 
-    /*
-    This is a private function, so it can only be called in this file.
-    We only call it when we are sure none of the "BigInts" are NULL.
-    */
-
-    char* number = calloc(bigInt->len + 1, sizeof(char));
-
-    BigInt_t* temp = bigInt;
-    int aux = 0;
-    while (temp != NULL) {
-        for (int i = 0; i < DIGIT_SIZE; i++) {
-            if (aux == bigInt->len) break;
-            number[aux] = temp->digits[i];
-            aux++;
-        }
-
-        temp = temp->next;
-    }
-
-    return number;
-}
-
 /*
 @brief Prints a bigInt type on the console
 @param bigInt The number you want to print
@@ -134,8 +105,21 @@ int print_bigInt(BigInt_t* bigInt) {
 
     if (bigInt->isNegative) fprintf(stdout, "-");
 
-    char* str = to_string(bigInt);
-    fprintf(stdout, "%s\n", str);
+    BigInt_t* tmp = bigInt;
+    int idx = 0;
+    while (tmp) {
+        if (tmp->digits[idx] != 0)
+            fprintf(stdout, "%c", tmp->digits[idx]);
+        
+        idx++;
+        
+        if (idx == DIGIT_SIZE) {
+            idx = 0;
+            tmp = tmp->next;
+        }
+    }
+
+    fprintf(stdout, "\n");
 
     return BIGINT_SUCCESS;
 }
@@ -341,18 +325,21 @@ int compare_abs_bigInt(BigInt_t* number1, BigInt_t* number2) {
     if (number1->len > number2->len) return GREATER;
     else if (number1->len < number2->len) return LESS;
     else {
-        char* num1 = to_string(number1), *num2 = to_string(number2);
-        int condition = strcmp(num1, num2);
-        free(num1); 
-        free(num2);
-        
-        if (condition > 0)
-            return GREATER;
-        else if (condition < 0)
-            return LESS;
-        else
-            return EQUAL;
+        BigInt_t* tmp1 = malloc(sizeof(BigInt_t)); 
+        BigInt_t* tmp2 = malloc(sizeof(BigInt_t));
 
+        memcpy(tmp1, number1, sizeof(BigInt_t));
+        memcpy(tmp2, number2, sizeof(BigInt_t));
+
+        if (tmp1->isNegative) tmp1->isNegative = 0;
+        if (tmp2->isNegative) tmp2->isNegative = 0;
+
+        int condition = compare_bigInt(tmp1, tmp2);
+
+        free(tmp1);
+        free(tmp2);
+
+        return condition;
     }
 }
 
@@ -366,7 +353,7 @@ int compare_abs_bigInt(BigInt_t* number1, BigInt_t* number2) {
 int operate_bigInt(BigInt_t** result, BigInt_t* number1, BigInt_t* number2) {
     if (number1 == NULL || number2 == NULL) return BIGINT_ERROR;
 
-    char* operation_result;
+    char* operation_result = NULL;
 
     // If both numbers have the same sign, do a normal addition
     if ((number1->isNegative && number2->isNegative) || (!number1->isNegative && !number2->isNegative))
@@ -384,7 +371,7 @@ int operate_bigInt(BigInt_t** result, BigInt_t* number1, BigInt_t* number2) {
                 break;
             case EQUAL:
                 operation_result = calloc(2, sizeof(char));
-                operation_result[0] = '0';        
+                operation_result[0] = '0';
             }
     }
 
