@@ -1,5 +1,5 @@
 CC	:=	gcc
-CCFLAGS :=	-std=c11 -Wall -Wpedantic -Wextra -O3 -march=native
+CCFLAGS :=	-std=c11 -Wall -Wpedantic -Wextra -Werror -O3 -march=native
 TARGET	:=	main
 OBJS	:=	main.o bigInt.o
 

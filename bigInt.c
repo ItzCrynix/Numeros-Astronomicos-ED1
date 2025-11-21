@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "bigInt.h"
 
 struct BigInt {
@@ -204,35 +205,57 @@ char* add_bigInt(BigInt_t* number1, BigInt_t* number2) {
     char* result = calloc(max_len, sizeof(char));
     int resultIdx = max_len - 2;
 
-    // Since "BigInt" is a linked list and starts from the most significant digit, turning them into strings beforehand sounded like the best approach. 
-    char* temp1 = to_string(number1);
-    char* temp2 = to_string(number2);
-    int num1Idx = number1->len - 1;
-    int num2Idx = number2->len - 1;
+    int num1Itr = (number1->len + (DIGIT_SIZE - 1)) / DIGIT_SIZE;
+    int num2Itr = (number2->len + (DIGIT_SIZE - 1)) / DIGIT_SIZE;   
+    int idx1 = DIGIT_SIZE - 1, idx2 = DIGIT_SIZE - 1;
 
     int carry = 0;
 
     while (resultIdx > 0) {
-        int digit1 = (num1Idx >= 0) ? (temp1[num1Idx] - '0') : 0;
-        int digit2 = (num2Idx >= 0) ? (temp2[num2Idx] - '0') : 0;
-        num1Idx--; num2Idx--;
+        BigInt_t* tmp1 = (num1Itr > 0) ? number1 : NULL;
+        BigInt_t* tmp2 = (num2Itr > 0) ? number2 : NULL;
 
-        int sum = digit1 + digit2 + carry;
-        carry = sum / 10;
+        for (int i = 0; i < num1Itr - 1; i++)
+            tmp1 = tmp1->next;
 
-        char resultDigit = ((sum % 10) + '0');
-        result[resultIdx] = resultDigit;
+        for (int i = 0; i < num2Itr - 1; i++) 
+            tmp2 = tmp2->next;
 
-        resultIdx--;
+        while (idx1 >= 0 && idx2 >= 0) {
+            if (resultIdx <= 0) break;
+         
+            if (tmp1) while (tmp1->digits[idx1] == 0) idx1--;
+
+            if (tmp2) while (tmp2->digits[idx2] == 0) idx2--;
+
+            int digit1 = (tmp1 && tmp1->digits[idx1]) ? (tmp1->digits[idx1] - '0') : 0;
+            int digit2 = (tmp2 && tmp2->digits[idx2]) ? (tmp2->digits[idx2] - '0') : 0;
+            idx1--; idx2--; 
+
+            int sum = digit1 + digit2 + carry;
+
+            carry = sum / 10;
+
+            char resultDigit = ((sum % 10) + '0');
+            result[resultIdx] = resultDigit;
+            resultIdx--;
+        }
+
+        if (idx1 < 0) {
+            num1Itr--;
+            idx1 = DIGIT_SIZE - 1;
+        }
+        
+        if (idx2 < 0) { 
+            num2Itr--;
+            idx2 = DIGIT_SIZE - 1;
+        }
     }
 
     if (!number1->isNegative)
         result[0] = '+';
     else
         result[0] = '-';
-
-    free(temp1);
-    free(temp2);
 
     return result;
 }
@@ -250,39 +273,60 @@ char* subt_bigInt(BigInt_t* number1, BigInt_t* number2) {
     char* result = calloc(max_len, sizeof(char));
     int resultIdx = max_len - 2; 
 
-    // Since "BigInt" is a linked list and starts from the most significant digit, turning them into strings beforehand sounded like the best approach. 
-    char* temp1 = to_string(number1);
-    char* temp2 = to_string(number2);
-    int num1Idx = number1->len - 1;
-    int num2Idx = number2->len - 1;
+    int num1Itr = (number1->len + (DIGIT_SIZE - 1)) / DIGIT_SIZE;
+    int num2Itr = (number2->len + (DIGIT_SIZE - 1)) / DIGIT_SIZE;   
+    int idx1 = DIGIT_SIZE - 1, idx2 = DIGIT_SIZE - 1;
 
     int borrow = 0;
-    
+
     while (resultIdx > 0) { 
-        int digit1 = (num1Idx >= 0) ? (temp1[num1Idx] - '0') : 0;
-        int digit2 = (num2Idx >= 0) ? (temp2[num2Idx] - '0') : 0;
-        num1Idx--; num2Idx--;
+        BigInt_t* tmp1 = (num1Itr > 0) ? number1 : NULL;
+        BigInt_t* tmp2 = (num2Itr > 0) ? number2 : NULL;
 
-        int subtraction = digit1 - digit2 - borrow;
-      
-        if (subtraction < 0) {
-            subtraction += 10;
-            borrow = 1;
-        } else 
-            borrow = 0;
+        for (int i = 0; i < num1Itr - 1; i++)
+            tmp1 = tmp1->next;
 
-        char resultDigit = (subtraction + '0');
-        result[resultIdx] = resultDigit;
-        resultIdx--;
+        for (int i = 0; i < num2Itr - 1; i++)
+            tmp2 = tmp2->next;
+
+        while (idx1 >= 0 && idx2 >= 0) {
+            if (resultIdx <= 0) break;
+
+            if (tmp1) while (tmp1->digits[idx1] == 0) idx1--;
+            if (tmp2) while (tmp2->digits[idx2] == 0) idx2--;
+
+            int digit1 = (tmp1 && tmp1->digits[idx1]) ? (tmp1->digits[idx1] - '0') : 0;
+            int digit2 = (tmp2 && tmp2->digits[idx2]) ? (tmp2->digits[idx2] - '0') : 0;
+            idx1--; idx2--;
+
+            int subtraction = digit1 - digit2 - borrow;
+            
+            if (subtraction < 0) {
+                subtraction += 10;
+                borrow = 1;
+            } else 
+                borrow = 0;
+
+            char resultDigit = (subtraction + '0');
+            result[resultIdx] = resultDigit;
+            resultIdx--;
+        }
+
+        if (idx1 < 0) { 
+            num1Itr--;
+            idx1 = DIGIT_SIZE - 1;
+        } 
+
+        if (idx2 < 0) {
+            num2Itr--;
+            idx2 = DIGIT_SIZE - 1;
+        }
     }
 
     if (!number1->isNegative)
         result[0] = '+';
     else
         result[0] = '-';
-
-    free(temp1);
-    free(temp2);
 
     return result;
 }
